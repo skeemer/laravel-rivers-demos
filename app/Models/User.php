@@ -3,11 +3,17 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Rivers\Rafts\UserRaft;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use LsvEu\Rivers\Contracts\CreatesRaft;
+use LsvEu\Rivers\Contracts\Raft;
+use LsvEu\Rivers\Observers\RiversObserver;
 
-class User extends Authenticatable
+#[ObservedBy(RiversObserver::class)]
+class User extends Authenticatable implements CreatesRaft
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -44,5 +50,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function createRaft(): Raft
+    {
+        return new UserRaft(['modelId' => $this->getKey()]);
     }
 }
