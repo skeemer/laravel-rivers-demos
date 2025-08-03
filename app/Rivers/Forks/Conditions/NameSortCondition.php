@@ -3,7 +3,7 @@
 namespace App\Rivers\Forks\Conditions;
 
 use App\Rivers\Rafts\UserRaft;
-use LsvEu\Rivers\Cartography\Fork\Condition;
+use LsvEu\Rivers\Cartography\Condition;
 
 class NameSortCondition extends Condition
 {

@@ -4,13 +4,13 @@ namespace App\Rivers\Bridges;
 
 use App\Rivers\Rafts\UserRaft;
 use DateInterval;
-use LsvEu\Rivers\Cartography\Bridge\TimedBridge;
+use LsvEu\Rivers\Cartography\Bridges\TimedBridge;
 
-class NameLengthBridge extends TimedBridge
+class RandomTimedBridge extends TimedBridge
 {
     public function getDateInterval(?UserRaft $user = null): DateInterval
     {
-        $duration = sprintf('PT%dM', strlen($user->name) - 5);
+        $duration = sprintf('PT%dM', rand(5, 30));
 
         return new DateInterval($duration);
     }

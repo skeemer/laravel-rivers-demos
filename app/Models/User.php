@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use LsvEu\Rivers\Concerns\RiverRunnable;
 use LsvEu\Rivers\Contracts\CreatesRaft;
 use LsvEu\Rivers\Contracts\Raft;
 use LsvEu\Rivers\Observers\RiversObserver;
@@ -16,7 +17,7 @@ use LsvEu\Rivers\Observers\RiversObserver;
 class User extends Authenticatable implements CreatesRaft
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, RiverRunnable;
 
     /**
      * The attributes that are mass assignable.

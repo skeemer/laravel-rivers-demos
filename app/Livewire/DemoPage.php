@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use LsvEu\Rivers\Models\RiverRun;
@@ -22,15 +23,18 @@ class DemoPage extends Component
 
     public function restart(): void
     {
+        DB::table('jobs')->truncate();
         $this->stop();
-        Artisan::call('migrate:fresh');
+        RiverRun::truncate();
+        User::truncate();
+        DB::table('failed_jobs')->truncate();
         $this->redirect('/');
     }
 
     public function start(): void
     {
         cache()->set('running', time());
-        Artisan::call('db:seed');
+        User::factory(20)->create();
     }
 
     public function stop(): void

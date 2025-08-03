@@ -23,15 +23,16 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->setTime();
 
-        Queue::before(function () {
+        Queue::looping(function () {
             $this->setTime();
         });
     }
 
-    protected function setTime(): void
+    // Speed time up so for every second, a minute passes
+    public function setTime(): void
     {
         if ($running = cache('running')) {
-            Carbon::setTestNow(Carbon::createFromTimestamp(time() + (time() - $running) * 30));
+            Carbon::setTestNow(Carbon::createFromTimestamp(time() + (time() - $running) * 60));
         }
     }
 }

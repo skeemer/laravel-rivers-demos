@@ -3,8 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use App\Rivers\Bridges\NameLengthBridge;
+use App\Rivers\Bridges\RandomTimedBridge;
 use App\Rivers\Forks\Conditions\NameSortCondition;
+use App\Rivers\Rafts\UserRaft;
 use App\Rivers\Ripples\CamelCaseName;
 use App\Rivers\Ripples\LowerCaseName;
 use App\Rivers\Ripples\SlugName;
@@ -12,9 +13,9 @@ use App\Rivers\Ripples\UpperCaseName;
 use Illuminate\Database\Seeder;
 use LsvEu\Rivers\Cartography\Connection;
 use LsvEu\Rivers\Cartography\Fork;
+use LsvEu\Rivers\Cartography\Launches\ModelCreated;
 use LsvEu\Rivers\Cartography\Rapid;
 use LsvEu\Rivers\Cartography\RiverMap;
-use LsvEu\Rivers\Cartography\Source\ModelCreated;
 use LsvEu\Rivers\Models\River;
 
 class RiverSeeder extends Seeder
@@ -25,14 +26,16 @@ class RiverSeeder extends Seeder
     public function run(): void
     {
         $map = new RiverMap([
-            'sources' => [
+            'raftClass' => UserRaft::class,
+            'launches' => [
                 new ModelCreated([
-                    'id' => 'user-created-source',
+                    'id' => 'user-created-launch',
                     'class' => User::class,
+                    'raftClass' => UserRaft::class,
                 ]),
             ],
             'bridges' => [
-                new NameLengthBridge([
+                new RandomTimedBridge([
                     'id' => 'delay-1',
                 ]),
             ],
@@ -83,7 +86,7 @@ class RiverSeeder extends Seeder
             ],
             'connections' => [
                 new Connection([
-                    'startId' => 'user-created-source',
+                    'startId' => 'user-created-launch',
                     'endId' => 'delay-1',
                 ]),
                 new Connection([
@@ -111,8 +114,6 @@ class RiverSeeder extends Seeder
                 ]),
             ],
         ]);
-
-        ray($map->validate());
 
         River::create([
             'title' => 'River 1',

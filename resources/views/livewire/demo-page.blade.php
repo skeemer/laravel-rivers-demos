@@ -1,4 +1,4 @@
-<div wire:poll class="contents">
+<div class="contents">
     <x-card class="m-2">
         <div class="flex gap-2 justify-between">
             <p class="flex-1">Current Time: {{ cache('running') ? now()->format('Y-m-d H:i') : '' }}</p>
@@ -6,16 +6,24 @@
                 <button class="cursor-pointer hover:underline" wire:click="add()">Add</button>
             </div>
             <div class="flex-1 flex justify-end gap-2">
-                <button class="cursor-pointer hover:underline" wire:click="start()">Start</button>
-                <button class="cursor-pointer hover:underline" wire:click="restart()">Stop</button>
+                @if (cache('running'))
+                    <button class="cursor-pointer hover:underline" wire:click="restart()">Stop</button>
+                @else
+                    <button class="cursor-pointer hover:underline" wire:click="start()">Start</button>
+                @endif
             </div>
         </div>
     </x-card>
-    <div class="w-full flex gap-4 p-4 overflow-hidden max-h-[90vh] h-[90vh]">
+    <div
+        class="w-full flex gap-4 p-4 overflow-hidden max-h-[90vh] h-[90vh]"
+        @if (cache('running'))
+            wire:poll.300ms
+        @endif
+    >
         <div class="flex-1 flex flex-col gap-2 text-center">
             <h2 class="text-xl font-medium">User Created</h2>
             <ul class="flex flex-col gap-2">
-                @foreach($this->runs->get('user-created-source')?->all() ?? [] as $run)
+                @foreach($this->runs->get('user-created-launch')?->all() ?? [] as $run)
                     <li wire:key="l1_{{ $run->raft->id }}">
                         <x-card>{{ $run->raft->name }}</x-card>
                     </li>
@@ -25,7 +33,7 @@
         <div class="flex-1 flex flex-col gap-2 text-center overflow-auto">
             <h2 class="text-xl font-medium">Delay (Name length - 5)</h2>
             <ul class="flex flex-col gap-2">
-                @foreach($this->runs->get('delay-1')?->all() ?? [] as $run)
+                @foreach($this->runs->get('delay-1')?->sortBy('riverTimedBridge.resume_at')->all() ?? [] as $run)
                     <li wire:key="l2_{{ $run->raft->id }}">
                         <x-card>
                             {{ $run->raft->name }}<br>

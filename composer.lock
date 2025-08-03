@@ -2084,16 +2084,16 @@
         },
         {
             "name": "lsv-eu/laravel-rivers",
-            "version": "1.0.0-alpha.2",
+            "version": "1.0.0-alpha.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lsv-eu/laravel-rivers.git",
-                "reference": "95a686e8ffe746bb4ed27f250aefdb081dd29d4e"
+                "reference": "56047f3cc08104b1c2bc86235e271455e71c0181"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lsv-eu/laravel-rivers/zipball/95a686e8ffe746bb4ed27f250aefdb081dd29d4e",
-                "reference": "95a686e8ffe746bb4ed27f250aefdb081dd29d4e",
+                "url": "https://api.github.com/repos/lsv-eu/laravel-rivers/zipball/56047f3cc08104b1c2bc86235e271455e71c0181",
+                "reference": "56047f3cc08104b1c2bc86235e271455e71c0181",
                 "shasum": ""
             },
             "require": {
@@ -2133,17 +2133,17 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Rivers is a system to create user-definable, mutable, workflows.",
-            "homepage": "https://github.com/lsv-eu/rivers",
+            "description": "Laravel Rivers is a system to create and run user-definable, mutable, workflows in Laravel.",
+            "homepage": "https://github.com/lsv-eu/laravel-rivers",
             "keywords": [
                 "lsv-eu",
                 "rivers"
             ],
             "support": {
                 "issues": "https://github.com/lsv-eu/laravel-rivers/issues",
-                "source": "https://github.com/lsv-eu/laravel-rivers/tree/1.0.0-alpha.2"
+                "source": "https://github.com/lsv-eu/laravel-rivers/tree/1.0.0-alpha.3"
             },
-            "time": "2025-08-02T19:02:36+00:00"
+            "time": "2025-08-02T22:17:43+00:00"
         },
         {
             "name": "monolog/monolog",
