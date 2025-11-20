@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Livewire;
-
 use App\Models\User;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -9,7 +7,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Component;
 use LsvEu\Rivers\Models\RiverRun;
 
-class DemoPage extends Component
+new class extends Component
 {
     public function hydrate(): void
     {
@@ -47,4 +45,4 @@ class DemoPage extends Component
     {
         return RiverRun::latest('updated_at')->get()->groupBy('location');
     }
-}
+};
