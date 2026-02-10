@@ -7,8 +7,10 @@
         "dev": "vite"
     },
     "devDependencies": {
+        "@joint/core": "^4.2.3",
         "@tailwindcss/vite": "^4.0.0",
         "laravel-vite-plugin": "^2.0.0",
+        "lodash.merge": "^4.6.2",
         "tailwindcss": "^4.0.0",
         "vite": "^7.0.4"
     }
