@@ -168,7 +168,10 @@ export default function jointJs(containerId) {
             this.addLaunch({id: 'launch', x: 10, y: 10, text: 'Launch'}, paletteGraph)
             this.addRapid({id: 'rapid', x: 10, y: 70, text: 'Rapid'}, paletteGraph)
 
-            function releaseNewDrag() {
+            function releaseNewDrag(event) {
+                const x = event.clientX
+                const y = event.clientY
+
                 document.removeEventListener('mousemove', moveFlyListener)
                 document.removeEventListener('mouseup', releaseNewDrag)
                 aThis.draggingNew = false
@@ -177,9 +180,14 @@ export default function jointJs(containerId) {
                 const current = paper.translate()
                 const box = dragCell.getBBox()
 
-                // TODO make sure mouse is not over palette
-
-                aThis.$wire.newCell(dragCell.attr('riversType'), box.x - current.tx, box.y - current.ty)
+                // Make sure the pointer is not over the palette
+                const paletteRect = paletteContainer.getBoundingClientRect()
+                if (
+                    (x < paletteRect.x || x > paletteRect.x + paletteRect.width) ||
+                    (y < paletteRect.y || y > paletteRect.y + paletteRect.height)
+                ) {
+                    aThis.$wire.newCell(dragCell.attr('riversType'), box.x - current.tx, box.y - current.ty)
+                }
 
                 flyGraph.removeCell(dragCell)
             }
