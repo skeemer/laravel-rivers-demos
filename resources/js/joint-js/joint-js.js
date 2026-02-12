@@ -1,5 +1,5 @@
 import { dia, shapes } from '@joint/core'
-import {rapidBase, rapidLaunch} from './models/cells.js'
+import {riversRapid, riversLaunch, riversFork} from './models/cells.js'
 import {Link} from './models/link.js'
 import merge from 'lodash.merge';
 
@@ -165,8 +165,9 @@ export default function jointJs(containerId) {
             })
             setTimeout(() => recenter(), 50)
 
-            this.addLaunch({id: 'launch', x: 10, y: 10, text: 'Launch'}, paletteGraph)
-            this.addRapid({id: 'rapid', x: 10, y: 70, text: 'Rapid'}, paletteGraph)
+            this.addCell({id: 'launch', x: 10, y: 10, text: 'Launch', type: 'launch'}, paletteGraph)
+            this.addCell({id: 'rapid', x: 10, y: 70, text: 'Rapid', type: 'rapid'}, paletteGraph)
+            this.addCell({id: 'fork', x: 10, y: 130, text: 'Fork', type: 'fork'}, paletteGraph)
 
             function releaseNewDrag(event) {
                 const x = event.clientX
@@ -212,23 +213,44 @@ export default function jointJs(containerId) {
         addCell(cell, toGraph = null) {
             let model = null;
             switch (cell.type) {
+                case 'fork':
+                    model = this.createCell(cell, riversFork)
+                    break
                 case 'launch':
-                    model = this.addLaunch(cell, toGraph)
+                    model = this.createCell(cell, riversLaunch)
                     break
                 case 'rapid':
-                    model = this.addRapid(cell, toGraph)
+                    model = this.createCell(cell, riversRapid)
                     break
                 default:
                     return
             }
 
-            if (cell.id !== 'drag-cell' && cell.type !== 'fork') {
-                model.addPorts([{group: 'in'}, {group: 'out'}])
-            } else if (cell.type === 'fork') {
-                model.addPorts([{group: 'in'}, {group: 'out'}, {group: 'out'}])
+            model.addTo(toGraph ?? graph)
+
+            if (! toGraph) {
+                if (cell.type !== 'fork') {
+                    model.addPorts([{group: 'in'}, {group: 'out'}])
+                } else if (cell.type === 'fork') {
+                    model.addPorts([
+                        {group: 'in'},
+                        {group: 'out', attrs: {label: {text: '1'}}},
+                        {group: 'out', attrs: {label: {text: 'E'}}},
+                    ])
+                }
             }
 
             return model
+        },
+        createCell(cell, baseShape) {
+            return new shapes.standard.Rectangle(merge({
+                id: cell.id,
+                position: { x: cell.x, y: cell.y },
+                attrs: {
+                    label: { text: cell.text ?? cell.id },
+                    riversType: cell.type,
+                }
+            }, baseShape))
         },
         addLaunch(cell, toGraph = null) {
             return new shapes.standard.Rectangle(merge({
@@ -238,7 +260,7 @@ export default function jointJs(containerId) {
                     label: { text: cell.text ?? cell.id },
                     riversType: cell.type,
                 }
-            }, rapidLaunch)).addTo(toGraph ?? graph)
+            }, riversLaunch)).addTo(toGraph ?? graph)
         },
         addRapid(cell, toGraph = null) {
             const model = new shapes.standard.Rectangle(merge({
@@ -248,7 +270,7 @@ export default function jointJs(containerId) {
                     label: { text: cell.text ?? cell.id },
                     riversType: cell.type,
                 }
-            }, rapidBase))
+            }, riversRapid))
 
             return model.addTo(toGraph ?? graph)
         },

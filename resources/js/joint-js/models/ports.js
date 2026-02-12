@@ -42,7 +42,7 @@ export const portsOut = {
     label: {
         position: {
             name: 'right',
-            args: { y: 6 }
+            args: { x: -4, y: 1.5 }
         },
         markup: [{
             tagName: 'text',
