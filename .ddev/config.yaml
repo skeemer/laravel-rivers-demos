@@ -17,6 +17,10 @@ web_extra_exposed_ports:
     container_port: 5173
     http_port: 5172
     https_port: 5173
+web_extra_daemons:
+  - name: vite
+    command: npm install && npm run dev
+    directory: /var/www/html
 
 # Key features of DDEV's config.yaml:
 
