@@ -1,5 +1,5 @@
-import { dia, shapes } from '@joint/core'
-import {riversRapid, riversLaunch, riversFork} from './models/cells.js'
+import {dia, shapes} from '@joint/core'
+import {riversBridge, riversFork, riversLaunch, riversRapid} from './models/cells.js'
 import {Link} from './models/link.js'
 import merge from 'lodash.merge';
 
@@ -148,10 +148,20 @@ export default function jointJs(containerId) {
         graph.removeCell(view.model);
     })
 
-    paper.on('link:connect', (linkView) => {
-        this.$wire.addLink(linkView.model.getSourceCell().id, linkView.model.getTargetCell().id)
+    paper.on('link:connect', (linkView, a, b, d) => {
+        this.$wire.addLink(linkView.model.source().id, linkView.model.source().port,linkView.model.target().id)
         graph.removeCell(linkView.model);
     })
+
+    function reRoute() {
+        graph.getLinks().forEach(link => paper.findViewByModel(link).render())
+    }
+
+    // Make sure the dragging element is on top
+    // paper.on('element:pointerdown', (cellView) => cellView.model.toFront())
+
+    // Make sure routes are re-rendered after element movement
+    paper.on('element:pointerup', () => reRoute())
 
     return {
         draggingNew: false,
@@ -168,6 +178,7 @@ export default function jointJs(containerId) {
             this.addCell({id: 'launch', x: 10, y: 10, text: 'Launch', type: 'launch'}, paletteGraph)
             this.addCell({id: 'rapid', x: 10, y: 70, text: 'Rapid', type: 'rapid'}, paletteGraph)
             this.addCell({id: 'fork', x: 10, y: 130, text: 'Fork', type: 'fork'}, paletteGraph)
+            this.addCell({id: 'bridge', x: 10, y: 190, text: 'Bridge', type: 'bridge'}, paletteGraph)
 
             function releaseNewDrag(event) {
                 const x = event.clientX
@@ -191,6 +202,8 @@ export default function jointJs(containerId) {
                 }
 
                 flyGraph.removeCell(dragCell)
+
+                reRoute()
             }
 
             flyPaper.on('blank:pointerup', () => document.removeEventListener('mousemove', moveFlyListener));
@@ -211,8 +224,13 @@ export default function jointJs(containerId) {
             });
         },
         addCell(cell, toGraph = null) {
+            const targetGraph = toGraph ?? graph
+
             let model = null;
             switch (cell.type) {
+                case 'bridge':
+                    model = this.createCell(cell, riversBridge)
+                    break
                 case 'fork':
                     model = this.createCell(cell, riversFork)
                     break
@@ -226,18 +244,34 @@ export default function jointJs(containerId) {
                     return
             }
 
-            model.addTo(toGraph ?? graph)
+            if (targetGraph.getCell(cell.id) && cell.type === 'fork') {
+                return
+            }
+            model.addTo(targetGraph)
 
             if (! toGraph) {
                 if (cell.type !== 'fork') {
-                    model.addPorts([{group: 'in'}, {group: 'out'}])
+                    model.addPorts([{group: 'in'}, {group: 'out', id: `${cell.id}-out`}])
                 } else if (cell.type === 'fork') {
+                    model.listenTo(
+                        model,
+                        'change:ports',
+                        () => model.resize(
+                            model.size().width,
+                            model.prop('ports/items').filter(item => item.group === 'out').length * 50,
+                        )
+                    )
                     model.addPorts([
                         {group: 'in'},
-                        {group: 'out', attrs: {label: {text: '1'}}},
-                        {group: 'out', attrs: {label: {text: 'E'}}},
+                        ...cell.ports.map((port, index) => ({
+                            group: 'out',
+                            id: port,
+                            attrs: {label: {text: (index+1).toString()}},
+                        })),
+                        {group: 'out', id: `${cell.id}-else`, attrs: {label: {text: 'E'}}},
                     ])
                 }
+                reRoute()
             }
 
             return model
@@ -252,33 +286,18 @@ export default function jointJs(containerId) {
                 }
             }, baseShape))
         },
-        addLaunch(cell, toGraph = null) {
-            return new shapes.standard.Rectangle(merge({
-                id: cell.id,
-                position: { x: cell.x, y: cell.y },
-                attrs: {
-                    label: { text: cell.text ?? cell.id },
-                    riversType: cell.type,
-                }
-            }, riversLaunch)).addTo(toGraph ?? graph)
-        },
-        addRapid(cell, toGraph = null) {
-            const model = new shapes.standard.Rectangle(merge({
-                id: cell.id,
-                position: { x: cell.x, y: cell.y },
-                attrs: {
-                    label: { text: cell.text ?? cell.id },
-                    riversType: cell.type,
-                }
-            }, riversRapid))
-
-            return model.addTo(toGraph ?? graph)
-        },
-        addLink(id, source, target) {
-            return new Link({id, source: graph.getCell(source), target: graph.getCell(target)}).addTo(graph)
+        addLink(id, source, target, port) {
+            new Link({
+                id,
+                source: { id: source, port: port },
+                target: { id: target },
+            }).addTo(graph).toBack()
         },
         addToGraph(cell) {
             cell.addTo(graph)
         },
+        getCell(id, targetGraph = null) {
+            return (targetGraph ?? graph).getCell(id)
+        }
     }
 }

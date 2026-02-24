@@ -4,17 +4,17 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use App\Rivers\Bridges\RandomTimedBridge;
+use App\Rivers\Fork;
 use App\Rivers\Forks\Conditions\NameSortCondition;
+use App\Rivers\Launches\ModelCreated;
 use App\Rivers\Rafts\UserRaft;
+use App\Rivers\Rapid;
 use App\Rivers\Ripples\CamelCaseName;
 use App\Rivers\Ripples\LowerCaseName;
 use App\Rivers\Ripples\SlugName;
 use App\Rivers\Ripples\UpperCaseName;
 use Illuminate\Database\Seeder;
 use LsvEu\Rivers\Cartography\Connection;
-use LsvEu\Rivers\Cartography\Fork;
-use LsvEu\Rivers\Cartography\Launches\ModelCreated;
-use LsvEu\Rivers\Cartography\Rapid;
 use LsvEu\Rivers\Cartography\RiverMap;
 use LsvEu\Rivers\Models\River;
 
@@ -32,11 +32,15 @@ class RiverSeeder extends Seeder
                     'id' => 'user-created-launch',
                     'class' => User::class,
                     'raftClass' => UserRaft::class,
+                    'x' => 0,
+                    'y' => 0,
                 ]),
             ],
             'bridges' => [
                 new RandomTimedBridge([
                     'id' => 'delay-1',
+                    'x' => 260,
+                    'y' => 0,
                 ]),
             ],
             'rapids' => [
@@ -45,24 +49,32 @@ class RiverSeeder extends Seeder
                     'ripples' => [
                         new UpperCaseName,
                     ],
-                ]),
-                new Rapid([
-                    'id' => 'rapid-camel',
-                    'ripples' => [
-                        new CamelCaseName,
-                    ],
+                    'x' => 520,
+                    'y' => 0,
                 ]),
                 new Rapid([
                     'id' => 'rapid-lower',
                     'ripples' => [
                         new LowerCaseName,
                     ],
+                    'x' => 1040,
+                    'y' => 0,
+                ]),
+                new Rapid([
+                    'id' => 'rapid-camel',
+                    'ripples' => [
+                        new CamelCaseName,
+                    ],
+                    'x' => 1040,
+                    'y' => 60,
                 ]),
                 new Rapid([
                     'id' => 'rapid-slug',
                     'ripples' => [
                         new SlugName,
                     ],
+                    'x' => 1040,
+                    'y' => 120,
                 ]),
             ],
             'forks' => [
@@ -82,6 +94,8 @@ class RiverSeeder extends Seeder
                             'letter' => 'S',
                         ]),
                     ],
+                    'x' => 780,
+                    'y' => 0,
                 ]),
             ],
             'connections' => [

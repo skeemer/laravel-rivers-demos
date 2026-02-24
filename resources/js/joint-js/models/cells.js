@@ -18,6 +18,7 @@ const base = {
     },
 }
 
-export const riversFork = merge({}, base, {attrs: { body: { stroke: '#7a077f', originalStroke: '#7a077f' }}})
-export const riversLaunch = merge({}, base, {attrs: { body: { stroke: '#466bc9', originalStroke: '#466bc9' }}})
-export const riversRapid = merge({}, base, {attrs: { body: { stroke: '#c94656', originalStroke: '#c94656' }}})
+export const riversBridge = merge({}, base, {attrs: { body: { stroke: '#ba0e0e', originalStroke: '#ba0e0e' }}})
+export const riversFork = merge({}, base, {attrs: { body: { stroke: '#e4d52c', originalStroke: '#e4d52c' }}})
+export const riversLaunch = merge({}, base, {attrs: { body: { stroke: '#31a828', originalStroke: '#31a828' }}})
+export const riversRapid = merge({}, base, {attrs: { body: { stroke: '#466bc9', originalStroke: '#466bc9' }}})
