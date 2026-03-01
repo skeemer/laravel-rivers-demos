@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9003e72f83814ddd468ee7af2ffc2ee9",
+    "content-hash": "4674455e0b46181ca062186fd7955e70",
     "packages": [
         {
             "name": "brick/math",
@@ -2097,16 +2097,16 @@
         },
         {
             "name": "lsv-eu/laravel-rivers",
-            "version": "1.0.0-alpha.5",
+            "version": "1.0.0-alpha.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lsv-eu/laravel-rivers.git",
-                "reference": "0ad70d968e0c02d9b4fa7d0e0be52e03659bc6b1"
+                "reference": "e6d4239c86df31fde5deeaf2426d498543eb7586"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lsv-eu/laravel-rivers/zipball/0ad70d968e0c02d9b4fa7d0e0be52e03659bc6b1",
-                "reference": "0ad70d968e0c02d9b4fa7d0e0be52e03659bc6b1",
+                "url": "https://api.github.com/repos/lsv-eu/laravel-rivers/zipball/e6d4239c86df31fde5deeaf2426d498543eb7586",
+                "reference": "e6d4239c86df31fde5deeaf2426d498543eb7586",
                 "shasum": ""
             },
             "require": {
@@ -2154,9 +2154,9 @@
             ],
             "support": {
                 "issues": "https://github.com/lsv-eu/laravel-rivers/issues",
-                "source": "https://github.com/lsv-eu/laravel-rivers/tree/1.0.0-alpha.5"
+                "source": "https://github.com/lsv-eu/laravel-rivers/tree/1.0.0-alpha.6"
             },
-            "time": "2026-02-14T01:17:04+00:00"
+            "time": "2026-03-01T17:59:49+00:00"
         },
         {
             "name": "monolog/monolog",

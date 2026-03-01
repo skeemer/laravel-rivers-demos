@@ -48,8 +48,6 @@ class AppServiceProvider extends ServiceProvider
                     [],
             ] : ['type' => null]);
         });
-
-        Livewire::propertySynthesizer(MapSynthesizer::class);
     }
 
     // Speed time up so for every second, a minute passes
