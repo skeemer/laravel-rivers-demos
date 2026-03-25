@@ -2,11 +2,9 @@
 
 namespace App\Providers;
 
-use App\Livewire\Synthesizers\MapSynthesizer;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
-use Livewire\Livewire;
 use LsvEu\Rivers\Cartography;
 use LsvEu\Rivers\Cartography\RiverElement;
 
@@ -43,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
                     $this instanceof Cartography\Rapid => 'rapid',
                     default => null,
                 },
+                'label' => method_exists($this, 'getEditorLabel') ? $this->getEditorLabel() : $this->id,
                 'ports' => $this instanceof Cartography\Fork ?
                     $this->conditions->map(fn ($condition) => $condition->id)->values() :
                     [],

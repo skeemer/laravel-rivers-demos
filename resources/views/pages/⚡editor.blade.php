@@ -1,20 +1,41 @@
 <?php
 
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use LsvEu\Rivers\Cartography\Connection;
 use LsvEu\Rivers\Cartography\Fork;
+use LsvEu\Rivers\Cartography\RiverMap;
 use LsvEu\Rivers\Models\River;
 use Ramsey\Uuid\Uuid;
 
 new class extends Component {
+    public River $river;
+
     public ?string $selectedId = null;
 
-    public \LsvEu\Rivers\Cartography\RiverMap $map;
+    public array $cellElements;
+
+    public $listeners = ['map-updated' => '$refresh'];
+
+    #[Locked]
+    public RiverMap $map;
 
     public function mount(): void
     {
-        $this->map = River::first()->map;
+        $this->river = River::first();
+        $this->map = $this->river->workingVersion->map;
+    }
+
+    public function hydrating(): void
+    {
+    }
+
+    public function rendering(): void
+    {
+        $this->cellElements = Arr::keyBy($this->cells, 'id');
     }
 
     public function addLink(string $source, ?string $port, string $target): void
@@ -23,9 +44,22 @@ new class extends Component {
         $this->map->connections->push(new Connection([
             'id' => null,
             'startId' => $source,
-            'startConditionId' => $isFork && ! str_ends_with($port, 'else') ? $port : null,
+            'startConditionId' => $isFork && !str_ends_with($port, 'else') ? $port : null,
             'endId' => $target,
         ]));
+    }
+
+    #[On('map-element-deleted')]
+    public function elementDeleted(): void
+    {
+        $this->selectedId = null;
+        $this->map = $this->river->workingVersion()->first()->map;
+    }
+
+    #[On('map-element-updated')]
+    public function elementUpdated(): void
+    {
+        $this->map = $this->river->workingVersion()->first()->map;
     }
 
     public function removeLink(string $id): void
@@ -35,9 +69,12 @@ new class extends Component {
 
     public function updatePosition(string $id, int $x, int $y): void
     {
-        $element = $this->map->getElementById($id);
+        $map = $this->river->workingVersion->map;
+        $element = $map->getElementById($id);
         $element->x = $x;
         $element->y = $y;
+        $this->river->update(['map' => $map]);
+        $this->map = $this->river->workingVersion->map;
         // $this->skipRender();
     }
 
@@ -52,10 +89,24 @@ new class extends Component {
 
     public function newCell(string $type, int $x, int $y): void
     {
+        $map = $this->river->workingVersion->map;
         if ($type === 'fork') {
-            $this->map->forks->push(new App\Rivers\Fork(['id' => 'blah', 'x' => $x, 'y' => $y]));
-        }
+            $map->forks->push($element = new App\Rivers\Fork(['x' => $x, 'y' => $y]));
+        } elseif ($type === 'launch') {
+            $map->launches->push($element = new App\Rivers\Launches\ModelCreated([
+                'x' => $x,
+                'y' => $y,
+                'class' => \App\Models\User::class,
+                'raftClass' => $map->raftClass,
+            ]));
+        } else {
         // TODO Add the other cell types
+            return;
+        }
+
+        $this->river->update(['map' => $map]);
+        $this->map = $this->river->workingVersion->map;
+        $this->selectedId = $element->id;
     }
 
     public function selectId(string $id): void
@@ -77,10 +128,10 @@ new class extends Component {
     public function links(): array
     {
         return $this->map->connections
-            ->map(fn (Connection $connection) => (object) [
+            ->map(fn(Connection $connection) => (object)[
                 'id' => $connection->id,
                 'source' => $connection->startId,
-                'port' => $this->map->getElementById($connection->startId) instanceof Fork && ! $connection->startConditionId ?
+                'port' => $this->map->getElementById($connection->startId) instanceof Fork && !$connection->startConditionId ?
                     "$connection->startId-else" :
                     $connection->startConditionId,
                 'target' => $connection->endId,
@@ -106,17 +157,6 @@ new class extends Component {
         </div>
     </div>
     <div class="hidden">
-        @foreach($this->cells as $cell)
-            <div
-                wire:key="{{ $cell->id }}-{{ count($cell->ports) }}"
-                x-data='jjCell("{{ $cell->type }}", "{{ $cell->id }}", {{ $cell->x }}, {{ $cell->y }}, @json($cell->ports))'
-                @moved.debounce="$wire.updatePosition(id, x, y)"
-                {{-- x-effect="console.log($wire.id)" --}}
-                x-show="this.selectedId === '{{ $cell->id }}'"
-                wire:ignore
-            ></div>
-        @endforeach
-
         @foreach($this->links as $link)
             <div
                 wire:key="{{ $link->id }}"
@@ -126,12 +166,15 @@ new class extends Component {
     </div>
     <div class="w-sm flex flex-col border-l-2 box-content border-gray-400">
         @if ($this->selectedId)
-            <p>Selected: {{ $this->selection->id }}</p>
-            <p>Position: ({{ $this->selection->x }}, {{ $this->selection->y }})</p>
-            @if ($this->selection instanceof Fork)
-                <button wire:click="addCondition">Add Condition</button>
+            @if ($this->selection instanceof App\Rivers\Launches\ModelCreated)
+                <livewire:editor.launches.user-created :$river :element-id="$this->selectedId"/>
+            @elseif ($this->selection instanceof Fork)
+                <livewire:editor.fork :$river :element-id="$this->selectedId"/>
             @else
-                {{ get_class($this->selection) }}
+                <p>Selected: {{ $this->selection->id }}</p>
+                <p>Position: ({{ $this->selection->x }}, {{ $this->selection->y }})</p>
+                <p>Class: {{ get_class($this->selection) }}</p>
+
             @endif
         @endif
     </div>

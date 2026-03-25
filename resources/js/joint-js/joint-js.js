@@ -2,6 +2,7 @@ import {dia, shapes} from '@joint/core'
 import {riversBridge, riversFork, riversLaunch, riversRapid} from './models/cells.js'
 import {Link} from './models/link.js'
 import merge from 'lodash.merge';
+import {debouncer} from "../utils.js";
 
 export default function jointJs(containerId) {
     const namespace = shapes;
@@ -169,16 +170,57 @@ export default function jointJs(containerId) {
         init() {
             const aThis = this
 
+            // Add initial map items
+            for (const id in this.$wire.cellElements) {
+                this.addCell(this.$wire.cellElements[id]);
+            }
+
+            this.$wire.$watch('cellElements', (value) => {
+                const elements = Alpine.raw(value)
+
+                console.log('cellElements changed', Object.keys(elements))
+
+                // Remove deleted cells
+                graph.getCells()
+                    .filter(cell => cell.isElement())
+                    .filter(cell => elements[cell.id] === undefined)
+                    .forEach(key => graph.removeCell(graph.getCell(key)))
+
+                // Add new cells
+                Object.keys(elements)
+                    .filter(key => ! graph.getCell(key))
+                    .forEach(key => this.addCell(elements[key]))
+
+                // Update existing cells
+                graph.getCells()
+                    .filter(cell => cell.isElement())
+                    .forEach(cell => {
+                        // Update label
+                        cell.prop('attrs/label/text', elements[cell.id].label);
+
+                        // Update ports
+                        cell.prop('ports/items', [
+                            {group: 'in'},
+                            ...elements[cell.id].ports.map((port, index) => ({
+                                group: 'out',
+                                id: port,
+                                attrs: {label: {text: (index+1).toString()}},
+                            })),
+                            {group: 'out', id: `${cell.id}-else`, attrs: {label: {text: 'E'}}},
+                        ])
+                    })
+            })
+
             setupSelection(id => {
                 this.selectedId = id
                 this.$wire.set('selectedId', id)
             })
             setTimeout(() => recenter(), 50)
 
-            this.addCell({id: 'launch', x: 10, y: 10, text: 'Launch', type: 'launch'}, paletteGraph)
-            this.addCell({id: 'rapid', x: 10, y: 70, text: 'Rapid', type: 'rapid'}, paletteGraph)
-            this.addCell({id: 'fork', x: 10, y: 130, text: 'Fork', type: 'fork'}, paletteGraph)
-            this.addCell({id: 'bridge', x: 10, y: 190, text: 'Bridge', type: 'bridge'}, paletteGraph)
+            this.addCell({id: 'launch', x: 10, y: 10, label: 'Launch', type: 'launch'}, paletteGraph)
+            this.addCell({id: 'rapid', x: 10, y: 70, label: 'Rapid', type: 'rapid'}, paletteGraph)
+            this.addCell({id: 'fork', x: 10, y: 130, label: 'Fork', type: 'fork'}, paletteGraph)
+            this.addCell({id: 'bridge', x: 10, y: 190, label: 'Bridge', type: 'bridge'}, paletteGraph)
 
             function releaseNewDrag(event) {
                 const x = event.clientX
@@ -218,7 +260,7 @@ export default function jointJs(containerId) {
                     id: 'drag-cell',
                     x: box.x + bounding.x,
                     y: box.y + bounding.y,
-                    text: cellView.model.attr('label').text,
+                    label: cellView.model.attr('label').text,
                     type: cellView.model.id,
                 }, flyGraph)
             });
@@ -247,6 +289,7 @@ export default function jointJs(containerId) {
             if (targetGraph.getCell(cell.id) && cell.type === 'fork') {
                 return
             }
+
             model.addTo(targetGraph)
 
             if (! toGraph) {
@@ -274,6 +317,12 @@ export default function jointJs(containerId) {
                 reRoute()
             }
 
+            if (graph === targetGraph) {
+                const aThis = this
+                const positionDebouncer = debouncer(aThis.$wire.updatePosition, 1000)
+                model.listenTo(model, 'change:position', (evt, position) => positionDebouncer(cell.id, position.x, position.y))
+            }
+
             return model
         },
         createCell(cell, baseShape) {
@@ -281,7 +330,7 @@ export default function jointJs(containerId) {
                 id: cell.id,
                 position: { x: cell.x, y: cell.y },
                 attrs: {
-                    label: { text: cell.text ?? cell.id },
+                    label: { text: cell.label ?? cell.id },
                     riversType: cell.type,
                 }
             }, baseShape))
