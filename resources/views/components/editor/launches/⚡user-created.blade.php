@@ -1,12 +1,13 @@
 <?php
 
-use App\Rivers\Launches\ModelCreated;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use LsvEu\Rivers\Cartography\Connection;
+use LsvEu\Rivers\Cartography\RiverMap;
 use LsvEu\Rivers\Models\River;
 
-new class extends Component {
+new class extends Component
+{
     public River $river;
 
     #[Locked]
@@ -21,7 +22,7 @@ new class extends Component {
 
     public function delete(): void
     {
-        /** @var \LsvEu\Rivers\Cartography\RiverMap $map */
+        /** @var RiverMap $map */
         $map = $this->river->workingVersion->map;
         $element = $map->getElementById($this->elementId);
         $map->launches->forget($this->elementId);
@@ -35,7 +36,7 @@ new class extends Component {
 
     public function updatedLabel(): void
     {
-        /** @var \LsvEu\Rivers\Cartography\RiverMap $map */
+        /** @var RiverMap $map */
         $map = $this->river->workingVersion->map;
         $element = $map->getElementById($this->elementId);
         $element->label = $this->label;
@@ -47,6 +48,7 @@ new class extends Component {
 ?>
 
 <div>
+    <p>{{ $this->elementId }}</p>
     <button wire:click="delete">Delete Me</button>
     <label>
         Label
