@@ -99,18 +99,19 @@ export default function jointJs(containerId) {
     /**
      * Add panning by scrolling
      */
-    let sensitivity = 7;
-    paper.on('blank:mousewheel', (custom, a, b, delta) => {
+    let sensitivity = 1;
+
+    paper.el.addEventListener('wheel', (event) => {
         const current = paper.translate();
-        if (custom.shiftKey) {
-            paper.translate(current.tx + delta * sensitivity, current.ty);
-        } else if (custom.ctrlKey) {
-            event.preventDefault();
-            paper.scale(paper.scale().sx + delta * sensitivity / 500);
+        event.preventDefault();
+        if (event.shiftKey) {
+            paper.translate(current.tx + event.deltaY * sensitivity, current.ty);
+        } else if (event.ctrlKey) {
+            paper.scale(paper.scale().sx + event.deltaY * sensitivity / 500);
         } else {
-            paper.translate(current.tx, current.ty + delta * sensitivity);
+            paper.translate(current.tx - event.deltaX * sensitivity, current.ty - event.deltaY * sensitivity);
         }
-    });
+    })
 
     /**
      * Add selection handling
