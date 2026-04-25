@@ -48,7 +48,7 @@ new class extends Component
                 'source' => $connection->startId,
                 'port' => $this->map->getElementById($connection->startId) instanceof Fork && ! $connection->startConditionId ?
                     "$connection->startId-else" :
-                    $connection->startConditionId,
+                    $connection->startConditionId ?? "$connection->startId-out",
                 'target' => $connection->endId,
             ])
             ->keyBy('id')

@@ -34,9 +34,14 @@ export default function jointJs(containerId) {
             // Prevent linking from output ports to input ports within one element
             if (cellViewS === cellViewT) return false
             // Prevent linking to already linked ports
-            if (graph.getConnectedLinks(cellViewT.model, { inbound: true }).length > 0) return false
+            // if (graph.getConnectedLinks(cellViewT.model, { inbound: true }).length > 0) return false
             // Prevent linking to output ports
             return magnetT && magnetT.getAttribute('port-group') === 'in'
+        },
+        validateMagnet: function(cellView, magnet) {
+            // Prevent creating a second link from the same port
+            const portId = magnet.getAttribute('port');
+            return ! graph.getConnectedLinks(cellView.model).some(link => link.get('source').port === portId);
         },
     })
 
@@ -197,15 +202,17 @@ export default function jointJs(containerId) {
                         cell.prop('attrs/label/text', elements[cell.id].label);
 
                         // Update ports
-                        cell.prop('ports/items', [
-                            {group: 'in'},
-                            ...elements[cell.id].ports.map((port, index) => ({
-                                group: 'out',
-                                id: port,
-                                attrs: {label: {text: (index+1).toString()}},
-                            })),
-                            {group: 'out', id: `${cell.id}-else`, attrs: {label: {text: 'E'}}},
-                        ])
+                        if (elements[cell.id].type === 'fork') {
+                            cell.prop('ports/items', [
+                                {group: 'in'},
+                                ...elements[cell.id].ports.map((port, index) => ({
+                                    group: 'out',
+                                    id: port,
+                                    attrs: {label: {text: (index + 1).toString()}},
+                                })),
+                                {group: 'out', id: `${cell.id}-else`, attrs: {label: {text: 'E'}}},
+                            ])
+                        }
                     })
             })
 
