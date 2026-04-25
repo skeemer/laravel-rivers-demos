@@ -18,7 +18,10 @@ export const portsIn = {
         markup: [{
             tagName: 'text',
             selector: 'label',
-            className: 'label-text'
+            className: 'label-text',
+            style: {
+                pointerEvents: 'none',
+            },
         }]
     },
     markup: [{
@@ -47,7 +50,10 @@ export const portsOut = {
         markup: [{
             tagName: 'text',
             selector: 'label',
-            className: 'label-text'
+            className: 'label-text',
+            style: {
+                pointerEvents: 'none',
+            },
         }]
     },
     markup: [{
