@@ -6,13 +6,12 @@
 
         <title>{{ $title ?? config('app.name') }}</title>
 
+        @filamentStyles
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
         @livewireStyles
+        @filamentScripts
     </head>
     <body class="bg-slate-300 h-screen max-h-screen overflow-hidden">
         {{ $slot }}
-
-        @livewireScripts
     </body>
 </html>

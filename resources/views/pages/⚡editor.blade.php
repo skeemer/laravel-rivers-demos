@@ -156,7 +156,7 @@ new class extends Component
             <div id="container-{{ $this->getId() }}-fly"></div>
         </div>
     </div>
-    <div class="w-sm flex flex-col border-l-2 box-content border-gray-400">
+    <div class="w-sm flex flex-col p-4 border-l-2 box-content border-gray-400 overflow-y-auto">
         @if ($this->selectedId)
             @if ($this->selection instanceof App\Rivers\Launches\ModelCreated)
                 <livewire:editor.launches.user-created
