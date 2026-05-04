@@ -200,16 +200,24 @@ export default function jointJs(containerId) {
                 graph.getElements()
                     .forEach(cell => {
                         // Update label
-                        cell.prop('attrs/label/text', elements[cell.id].label);
+                        cell.prop('attrs/label/text', elements[cell.id].label)
 
-                        // Update ports
+                        // Update ports for forks
                         if (elements[cell.id].type === 'fork') {
+                            const incomingPorts = elements[cell.id].ports
+                            const existingPorts = cell.getPorts()
+                            const existingIds = existingPorts.map(port => port.id)
+
+                            existingIds
+                                .filter(id => ! incomingPorts.includes(id) && ! id.startsWith(cell.id))
+                                .forEach(id => cell.removePort(id))
+
                             cell.prop('ports/items', [
-                                {group: 'in'},
-                                ...elements[cell.id].ports.map((port, index) => ({
+                                {group: 'in', id: `${cell.id}-in`},
+                                ...incomingPorts.map((port, index) => ({
                                     group: 'out',
                                     id: port,
-                                    attrs: {label: {text: (index + 1).toString()}},
+                                    attrs: {label: {text: (index+1).toString()}},
                                 })),
                                 {group: 'out', id: `${cell.id}-else`, attrs: {label: {text: 'E'}}},
                             ])
